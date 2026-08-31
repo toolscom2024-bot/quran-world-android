@@ -1,0 +1,1 @@
+# Quran World Android wrapper
