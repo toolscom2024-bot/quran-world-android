@@ -1,6 +1,7 @@
 package com.toolscom.quranworld;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,10 +15,8 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private static final String HOME = "https://alseraj-almuneer.toolscom2024.chatgpt.site";
     private WebView webView;
     private ProgressBar progress;
@@ -65,18 +64,16 @@ public class MainActivity extends AppCompatActivity {
                 if(r.isForMainFrame()) showOffline();
             }
         });
-        getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
-            @Override public void handleOnBackPressed(){ if(webView.canGoBack()) webView.goBack(); else finish(); }
-        });
         if(state==null) webView.loadUrl(HOME); else webView.restoreState(state);
     }
 
     private void showOffline(){
         TextView t=new TextView(this); t.setText("تعذر الاتصال بالإنترنت\nتحقق من الشبكة ثم اضغط للمحاولة مجددًا");
         t.setTextColor(Color.rgb(20,41,35)); t.setTextSize(18); t.setGravity(17); t.setPadding(40,40,40,40);
-        t.setBackgroundColor(Color.rgb(243,239,229)); t.setOnClickListener(v->webView.loadUrl(HOME));
+        t.setBackgroundColor(Color.rgb(243,239,229)); t.setOnClickListener(v->{ ((FrameLayout)t.getParent()).removeView(t); webView.loadUrl(HOME); });
         ((FrameLayout)webView.getParent()).addView(t,new FrameLayout.LayoutParams(-1,-1));
     }
+    @Override public void onBackPressed(){ if(webView!=null && webView.canGoBack()) webView.goBack(); else super.onBackPressed(); }
     @Override protected void onSaveInstanceState(Bundle out){ webView.saveState(out); super.onSaveInstanceState(out); }
-    @Override protected void onDestroy(){ webView.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy(){ if(webView!=null) webView.destroy(); super.onDestroy(); }
 }
